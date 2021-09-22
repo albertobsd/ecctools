@@ -39,10 +39,12 @@ Advice: USE A SECURE PASSWORD
 
 Example of use
 
-Generate 2 privatekeys and his address after 1 million of rehahes
+Generate 2 privatekeys and his address after 100 thausand of rehahes
+
 ```./rehashaddress -p "}78~Et=jPQP5}MVVj2fc0X38{~I}?c" -n 2 -m 100000```
 
 Output:
+
 ```
 [I] Password: }78~Et=jPQP5}MVVj2fc0X38{~I}?c
 [I] n: 2
@@ -89,6 +91,7 @@ Well just ask for the program that you want. But please don't be annoying, I do 
 Use the Issue section or the bitcointalk topic:
 
 https://github.com/albertobsd/ecctools/issues
+
 https://bitcointalk.org/index.php?topic=5361234.0
 
 ## Donations:
