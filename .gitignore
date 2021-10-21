@@ -1,6 +1,8 @@
 calculatefromkey
 rehashaddress
-
+calculatefrompublickey
+keymath
+keydivision
 
 *.o
 *.txt
