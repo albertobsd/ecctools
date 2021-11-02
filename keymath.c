@@ -88,6 +88,15 @@ int main(int argc, char **argv)  {
 	}
 	switch(strlen(argv[3]))	{
 		case 66:
+			if(argv[3][0] == '0' && argv[3][1] == 'x')	{
+				mpz_set_str(number,argv[3],0);
+				FLAG_NUMBER = 1;
+			}
+			else	{
+	                        set_publickey(argv[3],&B);
+        	                FLAG_NUMBER = 0;
+			}
+		break;
 		case 130:
 			set_publickey(argv[3],&B);
 			FLAG_NUMBER = 0;
