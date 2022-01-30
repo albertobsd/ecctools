@@ -67,6 +67,7 @@ gmp_randstate_t state;
 
 int main(int argc, char **argv)  {
 	char buffer_input[1024];
+	char *temp;
 	FILE *OUTPUT,*INPUT;
 	char c;
 	int i = 0,entrar;
@@ -158,14 +159,18 @@ int main(int argc, char **argv)  {
 				exit(0);
 			}
 		}
-		entrar = 0;
-		do	{
+		entrar = 1;
+		while(entrar)	{
 			if(FLAG_PUBLIC){
 				set_publickey(str_publickey_ptr);
 			}
 			else	{
-				fgets(buffer_input,1024,INPUT);
-				set_publickey(str_publickey_ptr);
+				temp = fgets(buffer_input,1024,INPUT);
+				if(temp != buffer_input)	{
+					exit(0);
+				}
+				trim(buffer_input," \r\n\t");
+				set_publickey(buffer_input);
 			}
 			
 			mpz_set(temp_point.x,target_publickey.x);
@@ -202,16 +207,11 @@ int main(int argc, char **argv)  {
 				entrar = 0;
 			}
 			else	{
-				if(!feof(INPUT)){
-					fgets(buffer_input,1024,INPUT);
-					set_publickey(str_publickey_ptr);
-					entrar = 1;
-				}
-				else	{
+				if(feof(INPUT)){
 					entrar = 0;
 				}
 			}
-		}while(entrar);
+		}
 	}
 	else	{
 		fprintf(stderr,"Version: %s\n",version);
