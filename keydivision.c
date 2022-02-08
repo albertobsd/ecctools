@@ -323,7 +323,7 @@ void set_divisor(char *param)	{
 		mpz_init_set_str(divisor,param,16);
 	}
 	else	{
-		mpz_init_set_str(divisor,param,16);
+		mpz_init_set_str(divisor,param,10);
 	}
 	FLAG_DIVISOR = 1;
 }
