@@ -161,7 +161,7 @@ int main(int argc, char **argv)  {
 		}
 		entrar = 1;
 		while(entrar)	{
-			if(FLAG_PUBLIC){
+			if(FLAG_PUBLIC)	{
 				set_publickey(str_publickey_ptr);
 			}
 			else	{
@@ -170,45 +170,47 @@ int main(int argc, char **argv)  {
 					exit(0);
 				}
 				trim(buffer_input," \r\n\t");
-				set_publickey(buffer_input);
-			}
-			
-			mpz_set(temp_point.x,target_publickey.x);
-			mpz_set(temp_point.y,target_publickey.y);
-			i = 0;
-			while( i < N)	{
-				/* Magic occurs here */
-				
-				Scalar_Multiplication_custom(temp_point, &dst_publickey,inversemultiplier);		/*Here is the "division" in ECC a  division is multiplation by the inverse of the divisor */
-				switch(FLAG_FORMART)	{
-					case 0: //Publickey
-						generate_strpublickey(&dst_publickey,FLAG_LOOK == 0,str_publickey);
-						fprintf(OUTPUT,"%s\n",str_publickey);
-					break;
-					case 1: //rmd160
-						generate_strrmd160(&dst_publickey,FLAG_LOOK == 0,str_rmd160);
-						fprintf(OUTPUT,"%s\n",str_rmd160);
-					break;
-					case 2:	//address
-						generate_straddress(&target_publickey,FLAG_LOOK == 0,str_address);
-						fprintf(OUTPUT,"%s\n",str_address);
-					
-					break;					
-					
-				}
-							
-				mpz_set(temp_point.x,dst_publickey.x);
-				mpz_set(temp_point.y,dst_publickey.y);
-
-				i++;
-			}
-			
-			if(FLAG_PUBLIC){
-				entrar = 0;
-			}
-			else	{
-				if(feof(INPUT)){
+				if(strlen(buffer_input) < 10)	{
 					entrar = 0;
+				}
+				else	{
+					set_publickey(buffer_input);
+				}
+			}
+			if(entrar)	{
+				mpz_set(temp_point.x,target_publickey.x);
+				mpz_set(temp_point.y,target_publickey.y);
+				i = 0;
+				while( i < N)	{
+					/* Magic occurs here */
+					Scalar_Multiplication_custom(temp_point, &dst_publickey,inversemultiplier);		/*Here is the "division" in ECC a  division is multiplation by the inverse of the divisor */
+					switch(FLAG_FORMART)	{
+						case 0: //Publickey
+							generate_strpublickey(&dst_publickey,FLAG_LOOK == 0,str_publickey);
+							fprintf(OUTPUT,"%s\n",str_publickey);
+						break;
+						case 1: //rmd160
+							generate_strrmd160(&dst_publickey,FLAG_LOOK == 0,str_rmd160);
+							fprintf(OUTPUT,"%s\n",str_rmd160);
+						break;
+						case 2:	//address
+							generate_straddress(&dst_publickey,FLAG_LOOK == 0,str_address);
+							fprintf(OUTPUT,"%s\n",str_address);
+						break;
+						
+					}
+					mpz_set(temp_point.x,dst_publickey.x);
+					mpz_set(temp_point.y,dst_publickey.y);
+
+					i++;
+				}
+				if(FLAG_PUBLIC){
+					entrar = 0;
+				}
+				else	{
+					if(feof(INPUT)){
+						entrar = 0;
+					}
 				}
 			}
 		}
@@ -218,12 +220,6 @@ int main(int argc, char **argv)  {
 		fprintf(stderr,"[E] there are some missing parameter\n");
 		showhelp();
 	}
-	
-	/* Why we clean the variables if we are going to quit? */
-	mpz_clear(dst_publickey.x);
-	mpz_clear(dst_publickey.y);
-	mpz_clear(base_key);
-	mpz_clear(sum_key);
 	return 0;
 }
 
@@ -242,7 +238,7 @@ void showhelp()	{
 void set_publickey(char *param)	{
 	char hexvalue[65];
 	char *dest;
-	int len;
+	int len,calculateY = 0;
 	len = strlen(param);
 	dest = (char*) calloc(len+1,1);
 	if(dest == NULL)	{
@@ -256,6 +252,7 @@ void set_publickey(char *param)	{
 	switch(len)	{
 		case 66:
 			mpz_set_str(target_publickey.x,dest+2,16);
+			calculateY = 1;
 		break;
 		case 130:
 			memcpy(hexvalue,dest+2,64);
@@ -264,7 +261,7 @@ void set_publickey(char *param)	{
 			mpz_set_str(target_publickey.y,hexvalue,16);
 		break;
 	}
-	if(mpz_cmp_ui(target_publickey.y,0) == 0)	{
+	if(calculateY)	{
 		mpz_t mpz_aux,mpz_aux2,Ysquared;
 		mpz_init(mpz_aux);
 		mpz_init(mpz_aux2);
