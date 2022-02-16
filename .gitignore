@@ -4,7 +4,7 @@ calculatefrompublickey
 keymath
 keydivision
 modmath
+addr2rmd
 *.o
-*.txt
 *.csv
 

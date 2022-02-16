@@ -12,7 +12,7 @@ default:
 	gcc -O3 -o keydivision keydivision.c gmpecc.o util.o base58.o sha256.o rmd160.o -lgmp
 	gcc -O3 -o modmath  modmath.c gmpecc.o util.o  base58.o sha256.o rmd160.o -lgmp
 	gcc -O3 -o keymath keymath.c gmpecc.o util.o  base58.o sha256.o rmd160.o -lgmp
-
+	gcc -O3 -o addr2rmd  addr2rmd.c util.o base58.o
 	rm *.o
 clean:
 	rm -r *.o
