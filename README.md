@@ -7,6 +7,7 @@ Well i like C language because compiled code is faster than interpreted code.
 ## List of tools in this repository
 
 - [keygen](https://github.com/albertobsd/ecctools#keygen)
+- [sharedsecret](https://github.com/albertobsd/ecctools#keygen)
 - [rehashaddress](https://github.com/albertobsd/ecctools#rehashaddress)
 - [calculatefromkey](https://github.com/albertobsd/ecctools#calculatefromkey)
 - [calculatefrompublickey](https://github.com/albertobsd/ecctools#calculatefrompublickey)
@@ -70,6 +71,56 @@ publickey compressed: 03af6e50db92ce378c29df0ed9a04d3431bc06762aa37ec3ab42af1470
 address compressed 1PTA5NaUfu5xU5pEmEfobsZbRuWvs4Sik3
 
 ```
+
+## sharedsecret
+
+In cryptography is important to have a shared secret with the person who you are communicating.
+But is also very important to have a way to communicate this secret without disclose it to all the world.
+
+This tool calculate that shared secret with your privatekey and the publickey of the other person.
+
+Alice (you) want to send a encrypted file to Bob (Other person)
+Alice have his own privatekey and Alice know the Publickey of Bob.
+
+Alice use this tool to calcualte the share secret to be use to encrypt the file.
+
+Alice example Keys:
+Private key: 18f619c4d16057d362ddfce772f551d46a2390517698226cff6e5bf67ac4b324 (Unknow for Bob and everyone else)
+Public key : 03af6e50db92ce378c29df0ed9a04d3431bc06762aa37ec3ab42af147083630596 (Public)
+
+Bob example Keys:
+Private key: bc9e78f140a76cbdcdbecc5ab0ec38b4db710edfa40dea342712c8a695fe8b22 (Unknow for Alice and everyone else)
+Public key : 022c8191049a3f2816bc95077b91caed87900d0cd2af3757004531face9c3b6082 (Public)
+
+Alice run the program:
+
+```
+./sharedsecret
+A: private key (hex): 18f619c4d16057d362ddfce772f551d46a2390517698226cff6e5bf67ac4b324
+B: public key : 022c8191049a3f2816bc95077b91caed87900d0cd2af3757004531face9c3b6082
+Secret between A and B: 22fb667f3bc1a2153e3cef75df0ce757a1c86051c07ace6b0c30dc87f3358511 (DON'T SHARE, THIS IS SECRET)
+```
+
+Bob run the program:
+
+```
+./sharedsecret
+A: private key (hex): bc9e78f140a76cbdcdbecc5ab0ec38b4db710edfa40dea342712c8a695fe8b22
+B: public key : 03af6e50db92ce378c29df0ed9a04d3431bc06762aa37ec3ab42af147083630596
+Secret between A and B: 22fb667f3bc1a2153e3cef75df0ce757a1c86051c07ace6b0c30dc87f3358511 (DON'T SHARE, THIS IS SECRET)
+```
+Alice and  Bob get the same shared secret only sharing their own PUBLIC keys to each other.
+
+Alice procced to encrypt their secret file `input.txt` with the password `22fb667f3bc1a2153e3cef75df0ce757a1c86051c07ace6b0c30dc87f3358511`
+
+openssl aes-256-cbc -salt -pbkdf2 -in input.txt -out input.txt.enc
+
+Bob decrypt the secret file with the command using the same password `22fb667f3bc1a2153e3cef75df0ce757a1c86051c07ace6b0c30dc87f3358511`:
+
+openssl aes-256-cbc -d -salt -pbkdf2 -in input.txt.enc -out message.txt
+
+Note for cryptographers this is just a basic proof of concept, i know that the comunication channel can be compromised, 
+there are mitm attacks, there is no authentication or integrity of the data etc...
 
 ## rehashaddress
 
