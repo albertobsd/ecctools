@@ -6,6 +6,7 @@ Well i like C language because compiled code is faster than interpreted code.
 
 ## List of tools in this repository
 
+- [keygen](https://github.com/albertobsd/ecctools#keygen)
 - [rehashaddress](https://github.com/albertobsd/ecctools#rehashaddress)
 - [calculatefromkey](https://github.com/albertobsd/ecctools#calculatefromkey)
 - [calculatefrompublickey](https://github.com/albertobsd/ecctools#calculatefrompublickey)
@@ -23,7 +24,10 @@ apt update && apt upgrade
 apt install root-repo
 apt install git -y
 apt install build-essential -y
-apt install libgmp
+apt install libssl-dev
+apt install libgcrypt20-dev
+apt install libgmp-dev
+
 ```
 
 Clone this repository
@@ -36,6 +40,35 @@ Compile:
 
 ```
 make
+```
+
+## keygen
+
+This tool generate one private and his address/publickey compressed and uncompressed at request.
+
+you can specify the bit size from 1 to 256 with `-b value` where `value` is the number of bits in your key.
+if you don't specify this value the bit may vary from 1 to 256, this will depend only of the RNG
+
+Also you can select the random source for this key `-s source`, where `sourse` is one of the next values.
+The default source is `urandom`
+
+- `urandom` to use the linux device `/dev/urandom`
+- `random` to use the linux device `/dev/random`
+- `openssl` to use the RND build in openssl library
+- `gmp` to use the RND build in gmp library
+- `getrandom` to use the linux kernet funciont getrandom, this may be equivalen to urandom in some kernels
+- `gcrypt` to use RND build in gcrypt library 
+
+example:
+
+```
+albertobsd $ ./keygen
+KEY (Secret: DON'T SHARE THIS VALUE): 18f619c4d16057d362ddfce772f551d46a2390517698226cff6e5bf67ac4b324
+publickey uncompressed: 04af6e50db92ce378c29df0ed9a04d3431bc06762aa37ec3ab42af14708363059616992ab8abb4bd8cfcc7d8c8d40331d419f426d7fc8490efb1af47b6316d7a1b
+address uncompressed 1CXHD79mKUxUDruD2iEJxs8XBwiJwYGmTR
+publickey compressed: 03af6e50db92ce378c29df0ed9a04d3431bc06762aa37ec3ab42af147083630596
+address compressed 1PTA5NaUfu5xU5pEmEfobsZbRuWvs4Sik3
+
 ```
 
 ## rehashaddress
@@ -220,7 +253,7 @@ Example of use:
 
 ```./addr2rmd -i examples/unsolvedpuzzles.txt  -o examples/unsolvedpuzzles.rmd```
 
-`-i` input file `-o` output file
+`-i` input file `-o` output file, if the -o option is omited the
 
 
 ## Do you wanna more programs here?
