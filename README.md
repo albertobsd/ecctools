@@ -4,10 +4,29 @@ Small collection of tools written in C for ECC and bitcoin
 ## Why this programs are written in C language?
 Well i like C language because compiled code is faster than interpreted code.
 
+## Warning
+
+- This repository include a small ECDSA Cryptography library.
+- This library was made by myself reading the documentaion but it can have some bugs.
+- I already implement the use of secure memory provided by the gcrypt library.
+- I just solved https://github.com/albertobsd/ecctools/issues/16
+- Use it by your own risk.
+- I use this tools in my  daily basis with my own private key.
+
+```
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## List of tools in this repository
 
 - [keygen](https://github.com/albertobsd/ecctools#keygen)
-- [sharedsecret](https://github.com/albertobsd/ecctools#keygen)
+- [sharedsecret](https://github.com/albertobsd/ecctools#sharedsecret)
 - [rehashaddress](https://github.com/albertobsd/ecctools#rehashaddress)
 - [calculatefromkey](https://github.com/albertobsd/ecctools#calculatefromkey)
 - [calculatefrompublickey](https://github.com/albertobsd/ecctools#calculatefrompublickey)
@@ -56,8 +75,7 @@ The default source is `urandom`
 - `urandom` to use the linux device `/dev/urandom`
 - `random` to use the linux device `/dev/random`
 - `openssl` to use the RND build in openssl library
-- `gmp` to use the RND build in gmp library
-- `getrandom` to use the linux kernet funciont getrandom, this may be equivalen to urandom in some kernels
+- `getrandom` to use the linux kernet funtcion getrandom, this may be equivalen to urandom in some kernels
 - `gcrypt` to use RND build in gcrypt library 
 
 example:

@@ -1,7 +1,6 @@
 #include <gmp.h>
 #include "gmpecc.h"
 
-
 void Point_Doubling(struct Point *P, struct Point *R)	{
 	mpz_t slope, temp;
 	mpz_init(temp);
@@ -83,13 +82,16 @@ void Point_Addition(struct Point *P, struct Point *Q, struct Point *R)	{
 }
 
 void Scalar_Multiplication(struct Point P, struct Point *R, mpz_t m)	{
-	struct Point SM_T,SM_Q;
+	struct Point SM_T,SM_Q,Dummy;
 	int no_of_bits, i;
 	no_of_bits = mpz_sizeinbase(m, 2);
 	mpz_init_set_ui(SM_Q.x,0);
 	mpz_init_set_ui(SM_Q.y,0);
 	mpz_init_set_ui(SM_T.x,0);
 	mpz_init_set_ui(SM_T.y,0);
+	mpz_init_set_ui(Dummy.x,0);
+	mpz_init_set_ui(Dummy.y,0);
+
 	mpz_set_ui(R->x, 0);
 	mpz_set_ui(R->y, 0);
 	if(mpz_cmp_ui(m, 0) != 0)	{
@@ -102,6 +104,13 @@ void Scalar_Multiplication(struct Point P, struct Point *R, mpz_t m)	{
 				mpz_set(SM_Q.x,DoublingG[i].x);
 				mpz_set(SM_Q.y,DoublingG[i].y);
 				Point_Addition(&SM_T, &SM_Q, R);
+			}
+			else	{	/* Doing exactly the same operations but with destination dummy */
+				mpz_set(Dummy.x, R->x);
+				mpz_set(Dummy.y, R->y);
+				mpz_set(Dummy.x,DoublingG[i].x);
+				mpz_set(Dummy.y,DoublingG[i].y);
+				Point_Addition(&SM_T, &SM_Q, &Dummy);
 			}
 		}
 	}

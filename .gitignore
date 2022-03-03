@@ -8,3 +8,5 @@ addr2rmd
 *.o
 *.csv
 
+keygen
+sharedsecret

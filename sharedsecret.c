@@ -18,6 +18,7 @@ gcc -o sharedsecret sharedsecret.c gmpecc.o util.o sha256.o base58.o rmd160.o -l
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
+#include <gcrypt.h>
 
 #include "util.h"
 
@@ -26,23 +27,42 @@ gcc -o sharedsecret sharedsecret.c gmpecc.o util.o sha256.o base58.o rmd160.o -l
 #include "rmd160/rmd160.h"
 #include "sha256/sha256.h"
 
+
+struct Elliptic_Curve EC;
+struct Point G;
+struct Point DoublingG[256];
+
 const char *EC_constant_N = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
 const char *EC_constant_P = "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f";
 const char *EC_constant_Gx = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798";
 const char *EC_constant_Gy = "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8";
 
+gmp_randstate_t state;
 
 void set_publickey(char *param);
 void Scalar_Multiplication_custom(struct Point P, struct Point *R, mpz_t m);
 
 struct Point target_publickey,publickey;
 
+
+void *wrapper_gcry_alloc(size_t size);
+void *wrapper_gcry_realloc(void *ptr, size_t old_size,  size_t new_size); 
+void wrapper_gcry_free(void *ptr, size_t cur_size);
+
+
 int main(int argc, char **argv)	{
-	char buffer[1024];
+	char *buffer;
 	mpz_t key;
 
 	char *hextemp,*aux,*public_address;
-		
+	
+	buffer =  (char*)gcry_malloc_secure(1024);	//Secure buffer for the KEY
+	
+	mp_set_memory_functions(wrapper_gcry_alloc,wrapper_gcry_realloc,wrapper_gcry_free);	//Using secure memory storage from lib gcrypt
+
+	gmp_randinit_mt(state);
+	gmp_randseed_ui(state, ((int)clock()) + ((int)time(NULL)) );
+
 	/* Init Constant Values in mpz numbers */
 	mpz_init_set_str(EC.p, EC_constant_P, 16);
 	mpz_init_set_str(EC.n, EC_constant_N, 16);
@@ -76,6 +96,11 @@ int main(int argc, char **argv)	{
 	}
 	Scalar_Multiplication_custom(target_publickey, &publickey,key);
 	gmp_printf("Secret between A and B: %Zx (DON'T SHARE, THIS IS SECRET)\n",publickey.x);
+	for(int i = 0; i <256;i++){
+		mpz_urandomb(key,state,256); // Overwritting the key with random data 256 times
+	}
+	mpz_clear(key);
+	gcry_free(buffer);
 	return 0;
 }
 
@@ -145,34 +170,52 @@ void set_publickey(char *param)	{
 }
 
 void Scalar_Multiplication_custom(struct Point P, struct Point *R, mpz_t m)  {
-	struct Point Q, T;
+	struct Point Q, T,Dummy;
 	long no_of_bits, loop;
 	mpz_init(Q.x);
 	mpz_init(Q.y);
 	mpz_init(T.x);
 	mpz_init(T.y);
+	mpz_init(Dummy.x);
+	mpz_init(Dummy.y);
 	no_of_bits = mpz_sizeinbase(m, 2);
 	mpz_set_ui(R->x, 0);
 	mpz_set_ui(R->y, 0);
 	if(mpz_cmp_ui(m, 0) != 0)  {
-  	mpz_set(Q.x, P.x);
-  	mpz_set(Q.y, P.y);
-  	if(mpz_tstbit(m, 0) == 1){
-  		mpz_set(R->x, P.x);
-  		mpz_set(R->y, P.y);
-  	}
-  	for(loop = 1; loop < no_of_bits; loop++) {
-  		Point_Doubling(&Q, &T);
-  		mpz_set(Q.x, T.x);
-  		mpz_set(Q.y, T.y);
-  		mpz_set(T.x, R->x);
-  		mpz_set(T.y, R->y);
-  		if(mpz_tstbit(m, loop))
-  			Point_Addition(&T, &Q, R);
-  	}
-  }
+		mpz_set(Q.x, P.x);
+		mpz_set(Q.y, P.y);
+		if(mpz_tstbit(m, 0) == 1){
+			mpz_set(R->x, P.x);
+			mpz_set(R->y, P.y);
+		}
+		for(loop = 1; loop < no_of_bits; loop++) {
+			Point_Doubling(&Q, &T);
+			mpz_set(Q.x, T.x);
+			mpz_set(Q.y, T.y);
+			mpz_set(T.x, R->x);
+			mpz_set(T.y, R->y);
+			if(mpz_tstbit(m, loop))	{
+				Point_Addition(&T, &Q, R);
+			}
+			else	{	/* Doing exactly the same operations but with destination dummy */
+				Point_Addition(&T, &Q, &Dummy);
+			}
+		}
+	}
 	mpz_clear(Q.x);
-  mpz_clear(Q.y);
+	mpz_clear(Q.y);
 	mpz_clear(T.x);
-  mpz_clear(T.y);
+	mpz_clear(T.y);
+}
+
+void *wrapper_gcry_alloc(size_t size)	{	//To use calloc instead of malloc
+	return gcry_calloc(size,1);
+}
+
+void *wrapper_gcry_realloc(void *ptr, size_t old_size,  size_t new_size)	{
+	return gcry_realloc(ptr,new_size);
+}
+
+void wrapper_gcry_free(void *ptr, size_t cur_size)	{
+	gcry_free(ptr);
 }

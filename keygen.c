@@ -43,6 +43,10 @@ Usage Examples:
 #include "rmd160/rmd160.h"
 #include "sha256/sha256.h"
 
+struct Elliptic_Curve EC;
+struct Point G;
+struct Point DoublingG[256];
+
 const char *EC_constant_N = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
 const char *EC_constant_P = "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f";
 const char *EC_constant_Gx = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798";
@@ -51,16 +55,24 @@ const char *EC_constant_Gy = "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c
 void generate_publickey_address_rmd160(struct Point *publickey,bool compress,char *dst_publickey,char *dst_address,char *dst_rmd160);
 void generate_publickey_and_address(struct Point *publickey,bool compress,char *dst_publickey,char *dst_address);
 
-const char *sources[6] = {"urandom","random","gmp","openssl","getrandom","gcrypt"};
+const char *sources[5] = {"urandom","random","openssl","getrandom","gcrypt"};
 
 gmp_randstate_t state;
+
+/*
+for some reason the GMP function mp_set_memory_functions needs a extra parameter in the function call of realloc  and free warppers
+*/
+void *wrapper_gcry_alloc(size_t size);
+void *wrapper_gcry_realloc(void *ptr, size_t old_size,  size_t new_size); 
+void wrapper_gcry_free(void *ptr, size_t cur_size);
+
 
 int main(int argc, char **argv)	{
 	unsigned long err;
 	int FLAG_SOURCE = 0,INDEX_SOURCE = 0,FLAG_BITS = 0;
 	int bits = 256,maxbits;
 	int bytes = 32,index,i,rc;
-	char c,buffer_key[32];
+	char c,*buffer_key;
 	FILE *fd;
 	mpz_t key;
 	struct Point publickey;
@@ -68,6 +80,8 @@ int main(int argc, char **argv)	{
 	char str_address[50];
 	char str_rmd[50];
 	char *hextemp,*aux,*public_address;
+	mp_set_memory_functions(wrapper_gcry_alloc,wrapper_gcry_realloc,wrapper_gcry_free);	//Using secure memory storage from lib gcrypt
+	buffer_key = (char*)gcry_malloc_secure(32);	//Secure buffer for the KEY
 		
 	/* Init Constant Values in mpz numbers */
 	mpz_init_set_str(EC.p, EC_constant_P, 16);
@@ -87,7 +101,7 @@ int main(int argc, char **argv)	{
 	while ((c = getopt(argc, argv, "b:s:")) != -1) {
 		switch(c)	{
 			case 's':
-				index = indexOf(optarg,sources,6);
+				index = indexOf(optarg,sources,5);
 				FLAG_SOURCE = 1;
 				INDEX_SOURCE = index;
 			break;
@@ -133,10 +147,6 @@ int main(int argc, char **argv)	{
 			mpz_import(key,bytes,1,1,0,0,buffer_key);
 		break;
 		case 2:
-			mpz_urandomb (key,state,256);
-			
-		break;
-		case 3:
 			rc = RAND_bytes(buffer_key, bytes);
 			if(rc != 1) {
 				fprintf(stderr,"OpenSSL error: %l\n",err);
@@ -144,11 +154,11 @@ int main(int argc, char **argv)	{
 			}
 			mpz_import(key,bytes,1,1,0,0,buffer_key);
 		break;
-		case 4:
+		case 3:
 			getrandom(buffer_key,bytes,GRND_NONBLOCK);
 			mpz_import(key,bytes,1,1,0,0,buffer_key);
 		break;
-		case 5:
+		case 4:
 			gcry_randomize(buffer_key,bytes,GCRY_VERY_STRONG_RANDOM);			
 			mpz_import(key,bytes,1,1,0,0,buffer_key);
 		break;
@@ -182,8 +192,10 @@ int main(int argc, char **argv)	{
 	//We overwrite the random buffer and the key mpz
 	for(i = 0; i <256;i++){
 		mpz_urandomb(key,state,256);
-		memset(buffer_key,i,32);
+		memset(buffer_key,i,32);	
 	}
+	mpz_clear(key);
+	gcry_free(buffer_key);
 	return 0;
 }
 
@@ -264,4 +276,16 @@ void generate_publickey_and_address(struct Point *publickey,bool compress,char *
 	if(!b58enc(dst_address,&pubaddress_size,bin_digest,25)){
 		fprintf(stderr,"error b58enc\n");
 	}
+}
+
+void *wrapper_gcry_alloc(size_t size)	{	//To use calloc instead of malloc
+	return gcry_calloc(size,1);
+}
+
+void *wrapper_gcry_realloc(void *ptr, size_t old_size,  size_t new_size)	{
+	return gcry_realloc(ptr,new_size);
+}
+
+void wrapper_gcry_free(void *ptr, size_t cur_size)	{
+	gcry_free(ptr);
 }

@@ -61,6 +61,9 @@ void generate_straddress(struct Point *publickey,bool compress,char *dst);
 void generate_strrmd160(struct Point *publickey,bool compress,char *dst);
 void generate_strpublickey(struct Point *publickey,bool compress,char *dst);
 
+struct Elliptic_Curve EC;
+struct Point G;
+struct Point DoublingG[256];
 
 int main(int argc, char **argv)	{
 	struct Point publickey;

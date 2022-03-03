@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
+#include <gcrypt.h>
 #include "util.h"
 
 #include "gmpecc.h"
@@ -22,6 +23,9 @@
 #include "rmd160/rmd160.h"
 #include "sha256/sha256.h"
 
+struct Elliptic_Curve EC;
+struct Point G;
+struct Point DoublingG[256];
 
 const char *EC_constant_N = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
 const char *EC_constant_P = "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f";
@@ -29,6 +33,12 @@ const char *EC_constant_Gx = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959
 const char *EC_constant_Gy = "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8";
 
 void generate_publickey_and_address(struct Point *publickey,bool compress,char *dst_publickey,char *dst_address);
+/*
+for some reason the GMP function mp_set_memory_functions needs a extra parameter in the function call of realloc  and free warppers
+*/
+void *wrapper_gcry_alloc(size_t size);
+void *wrapper_gcry_realloc(void *ptr, size_t old_size,  size_t new_size); 
+void wrapper_gcry_free(void *ptr, size_t cur_size);
 
 int main(int argc, char **argv)	{
 	mpz_t key;
@@ -37,6 +47,8 @@ int main(int argc, char **argv)	{
 	char str_publickey[131];
 	char str_address[50];
 	char *hextemp,*aux,*public_address;
+	
+	mp_set_memory_functions(wrapper_gcry_alloc,wrapper_gcry_realloc,wrapper_gcry_free);	//Using secure memory storage from lib gcrypt
 	
 	mpz_init_set_str(EC.p, EC_constant_P, 16);
 	mpz_init_set_str(EC.n, EC_constant_N, 16);
@@ -104,4 +116,16 @@ void generate_publickey_and_address(struct Point *publickey,bool compress,char *
 	if(!b58enc(dst_address,&pubaddress_size,bin_digest,25)){
 		fprintf(stderr,"error b58enc\n");
 	}
+}
+
+void *wrapper_gcry_alloc(size_t size)	{	//To use calloc instead of malloc
+	return gcry_calloc(size,1);
+}
+
+void *wrapper_gcry_realloc(void *ptr, size_t old_size,  size_t new_size)	{
+	return gcry_realloc(ptr,new_size);
+}
+
+void wrapper_gcry_free(void *ptr, size_t cur_size)	{
+	gcry_free(ptr);
 }
