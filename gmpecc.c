@@ -82,15 +82,15 @@ void Point_Addition(struct Point *P, struct Point *Q, struct Point *R)	{
 }
 
 void Scalar_Multiplication(struct Point P, struct Point *R, mpz_t m)	{
-	struct Point SM_T,SM_Q,Dummy;
+	struct Point SM_T,SM_Q,Dumm;
 	int no_of_bits, i;
 	no_of_bits = mpz_sizeinbase(m, 2);
 	mpz_init_set_ui(SM_Q.x,0);
 	mpz_init_set_ui(SM_Q.y,0);
 	mpz_init_set_ui(SM_T.x,0);
 	mpz_init_set_ui(SM_T.y,0);
-	mpz_init_set_ui(Dummy.x,0);
-	mpz_init_set_ui(Dummy.y,0);
+	mpz_init_set_ui(Dumm.x,0);
+	mpz_init_set_ui(Dumm.y,0);
 
 	mpz_set_ui(R->x, 0);
 	mpz_set_ui(R->y, 0);
@@ -106,14 +106,16 @@ void Scalar_Multiplication(struct Point P, struct Point *R, mpz_t m)	{
 				Point_Addition(&SM_T, &SM_Q, R);
 			}
 			else	{	/* Doing exactly the same operations but with destination dummy */
-				mpz_set(Dummy.x, R->x);
-				mpz_set(Dummy.y, R->y);
-				mpz_set(Dummy.x,DoublingG[i].x);
-				mpz_set(Dummy.y,DoublingG[i].y);
-				Point_Addition(&SM_T, &SM_Q, &Dummy);
+				mpz_set(Dumm.x, R->x);
+				mpz_set(Dumm.y, R->y);
+				mpz_set(Dumm.x,DoublingG[i].x);
+				mpz_set(Dumm.y,DoublingG[i].y);
+				Point_Addition(&SM_T, &SM_Q, &Dumm);
 			}
 		}
 	}
+	mpz_clear(Dumm.x);
+	mpz_clear(Dumm.y);
 	mpz_clear(SM_T.x);
 	mpz_clear(SM_T.y);
 	mpz_clear(SM_Q.x);
