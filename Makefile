@@ -14,6 +14,7 @@ default:
 	gcc -O3 -o modmath  modmath.c gmpecc.c util.o  base58.o sha256.o rmd160.o -lgmp
 	gcc -O3 -o keygen keygen.c gmpecc.c util.o sha256.o base58.o rmd160.o -lgmp -lcrypto `libgcrypt-config --cflags --libs`
 	gcc -O3 -o sharedsecret sharedsecret.c gmpecc.c util.o sha256.o base58.o rmd160.o -lgmp `libgcrypt-config --cflags --libs`
+	gcc -o addr2rmd addr2rmd.c util.o base58.o
 	rm *.o
 clean:
 	rm -r *.o
