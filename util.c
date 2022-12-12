@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include "util.h"
 
 char *ltrim(char *str, const char *seps)	{
@@ -92,37 +93,38 @@ void freetokenizer(Tokenizer *t)	{
 /*
 	Aux function to get the hexvalues of the data
 */
-char *tohex(char *ptr,int length){
-  char *buffer;
-  int offset = 0;
-  unsigned char c;
-  buffer = (char *) malloc((length * 2)+1);
-  for (int i = 0; i <length; i++) {
-    c = ptr[i];
-	sprintf((char*) (buffer + offset),"%.2x",c);
-	offset+=2;
-  }
-  buffer[length*2] = 0;
-  return buffer;
+char* tohex(char *ptr, int length) {
+	if(ptr == NULL || length <= 0)
+		return NULL;
+	// Allocate memory for the hexadecimal string and initialize it to zero
+	char *hex_string = (char *)calloc((2 * length) + 1, sizeof(char));
+	if(hex_string == NULL)
+		fprintf(stderr,"Erro calloc()\n");
+	// Convert the input string to a hexadecimal string
+	for (int i = 0; i < length; i++) {
+		snprintf((char*)(hex_string + (2 * i)), 3, "%.2x",(uint8_t) ptr[i]);
+	}
+	return hex_string;
 }
 
-void tohex_dst(char *ptr,int length,char *dst)	{
-  int offset = 0;
-  unsigned char c;
-  for (int i = 0; i <length; i++) {
-    c = ptr[i];
-	sprintf((char*) (dst + offset),"%.2x",c);
-	offset+=2;
-  }
-  dst[length*2] = 0;
+
+void tohex_dst(char *ptr, int length,char *dst) {
+	if(ptr == NULL || length <= 0)
+		return;
+	// Convert the input string to a hexadecimal string
+	for (int i = 0; i < length; i++) {
+		snprintf((char*)(dst + (2 * i)), 3, "%.2x",(uint8_t) ptr[i]);
+		//snprintf(dst + 2 * i, 3, "%.2x", ptr[i]);
+	}
+	dst[length*2] = 0;
 }
+
 
 int hexs2bin(char *hex, unsigned char *out)	{
 	int len;
-	char   b1;
-	char   b2;
+	char b1;
+	char b2;
 	int i;
-
 	if (hex == NULL || *hex == '\0' || out == NULL)
 		return 0;
 
@@ -130,8 +132,7 @@ int hexs2bin(char *hex, unsigned char *out)	{
 	if (len % 2 != 0)
 		return 0;
 	len /= 2;
-
-	memset(out, 'A', len);
+	memset(out, 0, len);
 	for (i=0; i<len; i++) {
 		if (!hexchr2bin(hex[i*2], &b1) || !hexchr2bin(hex[i*2+1], &b2)) {
 			return 0;
@@ -142,8 +143,9 @@ int hexs2bin(char *hex, unsigned char *out)	{
 }
 
 int hexchr2bin(const char hex, char *out)	{
-	if (out == NULL)
+	if (out == NULL){
 		return 0;
+	}
 
 	if (hex >= '0' && hex <= '9') {
 		*out = hex - '0';

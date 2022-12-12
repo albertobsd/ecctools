@@ -34,6 +34,7 @@ SOFTWARE.
 - [keymath](https://github.com/albertobsd/ecctools#keymath)
 - [modmath](https://github.com/albertobsd/ecctools#modmath)
 - [addr2rmd](https://github.com/albertobsd/ecctools#addr2rmd)
+- [verifymsg](https://github.com/albertobsd/ecctools#verifymsg)
 
 ## How to download and run the code?
 
@@ -324,6 +325,46 @@ Example of use:
 
 `-i` input file `-o` output file, if the -o option is omited the
 
+
+## verifymsg
+
+This tool help to verify te signature for a bitcoin message.
+
+Example of use:
+```
+./verifymsg -m 1E9YwDtYf9R29ekNAfbV7MvB4LNv7v3fGa -a 1NChfewU45oy7Dgn51HwkBFSixaTnyakfj -s "HCsBcgB+Wcm8kOGMH8IpNeg0H4gjCrlqwDf/GlSXphZGBYxm0QkKEPhh9DTJRp2IDNUhVr0FhP9qCqo2W0recNM="
+
+The signature match with the address and it is valid
+
+-----BEGIN BITCOIN SIGNED MESSAGE-----
+1E9YwDtYf9R29ekNAfbV7MvB4LNv7v3fGa
+-----BEGIN BITCOIN SIGNATURE-----
+1NChfewU45oy7Dgn51HwkBFSixaTnyakfj
+HCsBcgB+Wcm8kOGMH8IpNeg0H4gjCrlqwDf/GlSXphZGBYxm0QkKEPhh9DTJRp2IDNUhVr0FhP9qCqo2W0recNM=
+```
+
+Also it have some VERBOSE mode `-v`
+
+Example:
+```
+./verifymsg -m 1E9YwDtYf9R29ekNAfbV7MvB4LNv7v3fGa -a 1NChfewU45oy7Dgn51HwkBFSixaTnyakfj -s "HCsBcgB+Wcm8kOGMH8IpNeg0H4gjCrlqwDf/GlSXphZGBYxm0QkKEPhh9DTJRp2IDNUhVr0FhP9qCqo2W0recNM=" -v
+Final X, Y : 2b0172007e59c9bc90e18c1fc22935e8341f88230ab96ac037ff1a5497a61646 105ecd499fa11dffe894dead6759ab732baf593b6a4da4b7a7294d5afffa02b7
+Final R: 2b0172007e59c9bc90e18c1fc22935e8341f88230ab96ac037ff1a5497a61646
+Final S: 058c66d1090a10f861f434c9469d880cd52156bd0584ff6a0aaa365b4ade70d3
+Final Z: d6a75acdff18b0a8103f867c6cab8c12ec8ac250dfa8dcdb4f89d8e553270115
+Calculated address: 1NChfewU45oy7Dgn51HwkBFSixaTnyakfj
+Calculated publickey uncompressed: 044e01f16fe203dbfd8110fd636f42e69bd2fa9e0fef913f00554e4412cb1cae070296f95c6b64f3fdcb7ee9dc838f20b992077e839703b3c2c5427e90e5afd0d1
+Calculated publickey compressed: 034e01f16fe203dbfd8110fd636f42e69bd2fa9e0fef913f00554e4412cb1cae07
+
+The signature match with the address and it is valid
+
+-----BEGIN BITCOIN SIGNED MESSAGE-----
+1E9YwDtYf9R29ekNAfbV7MvB4LNv7v3fGa
+-----BEGIN BITCOIN SIGNATURE-----
+1NChfewU45oy7Dgn51HwkBFSixaTnyakfj
+HCsBcgB+Wcm8kOGMH8IpNeg0H4gjCrlqwDf/GlSXphZGBYxm0QkKEPhh9DTJRp2IDNUhVr0FhP9qCqo2W0recNM=
+-----END BITCOIN SIGNATURE-----
+```
 
 ## Do you wanna more programs here?
 

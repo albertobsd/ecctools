@@ -1,3 +1,5 @@
+verifymsg
+test_functions
 calculatefromkey
 rehashaddress
 calculatefrompublickey
@@ -7,6 +9,5 @@ modmath
 addr2rmd
 *.o
 *.csv
-
 keygen
 sharedsecret
