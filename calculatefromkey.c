@@ -65,6 +65,7 @@ int main(int argc, char **argv)	{
 	}
 	
 	mpz_set_str(key,argv[1],16);
+	mpz_mod(key,key,EC.n);
 	Scalar_Multiplication(G,&publickey,key);
 	
 	gmp_printf("privatekey: %0.64Zx\n",key);
