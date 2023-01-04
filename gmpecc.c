@@ -123,8 +123,14 @@ void Scalar_Multiplication(struct Point P, struct Point *R, mpz_t m)	{
 }
 
 void Point_Negation(struct Point *A, struct Point *S)	{
-	mpz_sub(S->y, EC.p, A->y);
-	mpz_set(S->x, A->x);
+	if(mpz_cmp_ui(A->x,0) != 0 && mpz_cmp_ui(A->y,0) != 0){
+		mpz_sub(S->y, EC.p, A->y);
+		mpz_set(S->x, A->x);
+	}
+	else	{
+                mpz_set(S->y, A->y);
+                mpz_set(S->x, A->x);
+	}
 }
 
 /*

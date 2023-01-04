@@ -109,6 +109,7 @@ int main(int argc, char **argv)  {
 			FLAG_NUMBER = 1;
 		break;
 	}
+	mpz_mod(number,number,EC.n);
 	switch(argv[2][0])	{
 		case '+':
 			if(FLAG_NUMBER)	{
