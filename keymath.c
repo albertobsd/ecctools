@@ -145,10 +145,10 @@ int main(int argc, char **argv)  {
 			else	{
 				Scalar_Multiplication_custom(A,&C,number);
 			}
-		break;		
+		break;
 	}
 	generate_strpublickey(&C,true,str_publickey);
-	printf("Result: %s\n\n",str_publickey);	
+	printf("Result: %s\n\n",str_publickey);
 }
 
 void generate_strpublickey(struct Point *publickey,bool compress,char *dst)	{
@@ -189,9 +189,17 @@ void set_publickey(char *param,struct Point *publickey)	{
 			mpz_set_str(publickey->x,hexvalue,16);
 			memcpy(hexvalue,dest+66,64);
 			mpz_set_str(publickey->y,hexvalue,16);
+			if(mpz_cmp_ui(publickey->y,0) == 0)        {
+				 mpz_set_ui(publickey->x,0);
+			}else if(mpz_cmp_ui(publickey->x,0) == 0)        {
+				mpz_set_ui(publickey->y,0);
+			}
 		break;
 	}
-	if(mpz_cmp_ui(publickey->y,0) == 0)	{
+	if(mpz_cmp_ui(publickey->x,0) == 0)	{
+		mpz_set_ui(publickey->y,0);
+	}
+	else if(mpz_cmp_ui(publickey->y,0) == 0)	{
 		mpz_t mpz_aux,mpz_aux2,Ysquared;
 		mpz_init(mpz_aux);
 		mpz_init(mpz_aux2);
